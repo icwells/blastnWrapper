@@ -87,8 +87,8 @@ class Config():
 		self.fastas = self.__getFileDict__(fastas, "fasta", "fa")
 		for k in self.fastqs.keys():
 			if k not in self.fastas.keys():
-				self.fastas[k][0] = self.fastqToFasta(fastas, self.fastqs[k][0])
-				self.fastas[k][1] = self.fastqToFasta(fastas, self.fastqs[k][1])
+				self.fastas[k][0] = self.__fastqToFasta__(fastas, self.fastqs[k][0])
+				self.fastas[k][1] = self.__fastqToFasta__(fastas, self.fastqs[k][1])
 
 	def __setConfig__(self, infile):
 		# Reads input from config file
