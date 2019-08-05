@@ -15,7 +15,7 @@ def blastSeqs(config):
 			config.results[k] = ["", ""]
 			for idx, i in enumerate(config.fastas[k]):
 				outfile = os.path.join(config.resdir, getFileName(i) + ".outfmt6")
-				cmd = ("blastn -query {} -db {} -num_threads {} -max_target_seqs 1 -outfmt 6 -out {}").format(i, config.db, config.threads, outfile)
+				cmd = ("{}blastn -query {} -db {} -num_threads {} -max_target_seqs 1 -outfmt 6 -out {}").format(config.bin, i, config.database, config.threads, outfile)
 				res = runProc(cmd)
 				if res == True:
 					# Add to results dict
@@ -27,14 +27,10 @@ def blastSeqs(config):
 def makeDB(config):
 	# Makes protein and nucleotide blast databases
 	print("\tConstructing BLAST nucleotide database...")
-	cmd = ("makeblastdb -in {} -parse_seqids -dbtype nucl").format(config.genome)
+	cmd = ("{}makeblastdb -in {} -parse_seqids -dbtype nucl").format(config.bin, config.genome)
 	res = runProc(cmd)
 	if not res:
 		print("\tError: Failed to build BLAST nucleotide database.")
-
-def exportBin(config):
-	# Exports blast bin directory to linux path
-	unipath.runProc(("export PATH=$PATH:{}").format(config.bin))
 
 def getArguments():
 	# Returns parsed arguemts
@@ -61,19 +57,18 @@ def main():
 	if args.v:
 		version()
 	# Load config file and append blast to path
-	conf = Config(args.c, args.t, args.e)
-	exportBin(config)
+	config = Config(args.c, args.t, args.e)
 	if args.makedb:
 		makeDB(config)
 	elif args.blastn:
 		config = blastSeqs(config)
 		#summarize(config)
-	elif args.summary:
-		summarize(config)
+	#elif args.summary:
+	#	summarize(config)
 	else:
 		print("\n[Error] Please supply a valid command.\n")
 		quit()
-	print(("\tTotal runtime: {}\n").format(datetime.now() - starttime))
+	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
 	main()

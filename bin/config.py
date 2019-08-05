@@ -60,7 +60,7 @@ class Config():
 			files.append(indir + "*{}*".format(ext))
 		for i in files:
 			# Get sample names and add to dict
-			name = i.split("_")[0]
+			name = os.path.split(i)[1].split("_")[0]
 			if name not in ret.keys():
 				ret[name] = ["", ""]
 			# Add forward/reverse files in order
@@ -94,7 +94,7 @@ class Config():
 		if not os.path.isfile(infile):
 			print("\n\t[Error] Cannot find configuation file. Exiting.\n")
 			quit()
-		print("\n\tReading configuraiton file...")
+		print("\n\tReading configuration file...")
 		with open(infile, "r") as f:
 			for line in f:
 				line = line.split("=")
