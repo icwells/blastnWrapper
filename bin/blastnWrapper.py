@@ -4,7 +4,7 @@ from config import Config
 import os
 from datetime import datetime
 from argparse import ArgumentParser
-import unixpath
+from unixpath import *
 
 def blastSeqs(config):
 	# Calls blastx on all input and blastn on all hits with e < 10^-5
@@ -14,9 +14,9 @@ def blastSeqs(config):
 			print(("\tCalling blastn on {}...").format(k))
 			config.results[k] = ["", ""]
 			for idx, i in enumerate(config.fastas[k]):
-				outfile = os.path.join(config.resdir, unixpath.GetFileName(i) + ".outfmt6")
+				outfile = os.path.join(config.resdir, GetFileName(i) + ".outfmt6")
 				cmd = ("blastn -query {} -db {} -num_threads {} -max_target_seqs 1 -outfmt 6 -out {}").format(i, config.db, config.threads, outfile)
-				res = unixpath.runProc(cmd)
+				res = runProc(cmd)
 				if res == True:
 					# Add to results dict
 					config.results[k][idx] = outfile
@@ -28,7 +28,7 @@ def makeDB(config):
 	# Makes protein and nucleotide blast databases
 	print("\tConstructing BLAST nucleotide database...")
 	cmd = ("makeblastdb -in {} -parse_seqids -dbtype nucl").format(config.genome)
-	res = unixpath.runProc(cmd)
+	res = runProc(cmd)
 	if not res:
 		print("\tError: Failed to build BLAST nucleotide database.")
 
