@@ -31,8 +31,8 @@ class Config():
 
 	def __fastqToFasta__(self, outdir, infile):
 		# Converts input fastq to fasta, unzips if needed
-		print(("\tConverting {} to fasta...).").format(os.path.split(infile)[1]))
-		score = re.compile(r"[0-9]|>|/|?")
+		print(("\tConverting {} to fasta...").format(os.path.split(infile)[1]))
+		score = re.compile(r"[0-9]|>|/|\?")
 		outfile = os.path.join(outdir, getFileName(infile) + ".fasta")
 		if ".gz" in infile:
 			f = gzip.open(infile, "rt")
