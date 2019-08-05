@@ -5,7 +5,7 @@ import gzip
 from multiprocessing import cpu_count
 import os
 import re
-from unixpath import *
+import unixpath
 
 class Config():
 
@@ -33,7 +33,7 @@ class Config():
 		# Converts input fastq to fasta, unzips if needed
 		print(("\tConverting {} to fasta...).").format(os.path.split(infile)[1]))
 		score = re.compile(r"[0-9]|>|/|?")
-		outfile = os.path.join(outdir, GetFileName(infile) + ".fasta")
+		outfile = os.path.join(outdir, unixpath.getFileName(infile) + ".fasta")
 		if ".gz" in infile:
 			f = gzip.open(infile, "rt")
 		else:
@@ -53,7 +53,7 @@ class Config():
 	def __getFileDict__(self, indir, ext, ext2=None):
 		# Reads in dictionary of paired read files
 		ret = {}
-		indir = CheckDir(indir, False)
+		indir = unixpath.checkDir(indir, False)
 		files = glob(indir + "*{}*".format(ext))
 		if ext2 is not None:
 			files.append(indir + "*{}*".format(ext))
@@ -75,12 +75,12 @@ class Config():
 
 	def __checkOutdir__(self):
 		# Makes sure proper output directory structure exists
-		self.outdir = CheckDir(self.outdir, True)
+		self.outdir = unixpath.checkDir(self.outdir, True)
 		# Get results directory and files
-		self.resdir = CheckDir(os.path.join(self.outdir, "blastResults"), True)
+		self.resdir = unixpath.checkDir(os.path.join(self.outdir, "blastResults"), True)
 		self.results = self.__getFileDict__(self.resdir, "outfmt6")
 		# Get fasta directory and files
-		fastas = CheckDir(os.path.join(self.outdir, "fastas"), True)
+		fastas = unixpath.checkDir(os.path.join(self.outdir, "fastas"), True)
 		self.fastas = self.__getFileDict__(fastas, "fasta", "fa")
 		for k in self.fastqs.keys():
 			if k not in self.fastas.keys():
@@ -99,13 +99,12 @@ class Config():
 				key = line[0].strip()
 				val = line[1].strip()
 				if key == "blast bin directory":
-					self.bin = CheckDir(val, False)
+					self.bin = unixpath.checkDir(val, False)
 				elif key == "reference genome":
-					self.genome = CheckFile(val)
+					self.genome = unixpath.checkFile(val)
 				elif key == "blast database":
-					self.database = CheckDir(val, False)
+					self.database = unixpath.checkDir(val, False)
 				elif key == "input fastq files":
 					self.fastqs = self.__getFileDict__(val, "fastq", "fq")
 				elif key == "output directory":
-					self.outdir = CheckDir(val, True)
-		self.__checkOutdir__()
+					self.outdir = unixpath.checkDir(val, True)
