@@ -53,7 +53,7 @@ class Config():
 	def __getFileDict__(self, indir, ext, ext2=None):
 		# Reads in dictionary of paired read files
 		ret = {}
-		indir = unixpath.checkDir(indir, False)
+		indir = unixpath.CheckDir(indir, False)
 		files = glob(indir + "*{}*".format(ext))
 		if ext2 is not None:
 			files.append(indir + "*{}*".format(ext))
@@ -75,12 +75,12 @@ class Config():
 
 	def __checkOutdir__(self):
 		# Makes sure proper output directory structure exists
-		self.outdir = unixpath.checkDir(self.outdir, True)
+		self.outdir = unixpath.CheckDir(self.outdir, True)
 		# Get results directory and files
-		self.resdir = unixpath.checkDir(os.path.join(self.outdir, "blastResults"), True)
+		self.resdir = unixpath.CheckDir(os.path.join(self.outdir, "blastResults"), True)
 		self.results = self.__getFileDict__(self.resdir, "outfmt6")
 		# Get fasta directory and files
-		fastas = unixpath.checkDir(os.path.join(self.outdir, "fastas"), True)
+		fastas = unixpath.CheckDir(os.path.join(self.outdir, "fastas"), True)
 		self.fastas = self.__getFileDict__(fastas, "fasta", "fa")
 		for k in self.fastqs.keys():
 			if k not in self.fastas.keys():
@@ -99,13 +99,13 @@ class Config():
 				key = line[0].strip()
 				val = line[1].strip()
 				if key == "blast bin directory":
-					self.bin = unixpath.checkDir(val, False)
+					self.bin = unixpath.CheckDir(val, False)
 				elif key == "reference genome":
-					self.genome = unixpath.checkFile(val)
+					self.genome = unixpath.CheckFile(val)
 				elif key == "blast database":
-					self.database = unixpath.checkDir(val, False)
+					self.database = unixpath.CheckDir(val, False)
 				elif key == "input fastq files":
 					self.fastqs = self.__getFileDict__(val, "fastq", "fq")
 				elif key == "output directory":
-					self.outdir = unixpath.checkDir(val, True)
+					self.outdir = unixpath.CheckDir(val, True)
 		self.__checkOutdir__()
