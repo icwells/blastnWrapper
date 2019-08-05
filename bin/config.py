@@ -103,7 +103,7 @@ class Config():
 				elif key == "reference genome":
 					self.genome = checkFile(val)
 				elif key == "blast database":
-					self.database = checkDir(val, False)
+					self.database = val
 				elif key == "input fastq files":
 					self.fastqs = self.__getFileDict__(val, "fastq", "fq")
 				elif key == "output directory":
