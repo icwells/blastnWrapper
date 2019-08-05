@@ -52,6 +52,7 @@ class Config():
 
 	def __getFileDict__(self, indir, ext, ext2=None):
 		# Reads in dictionary of paired read files
+		rm = []
 		ret = {}
 		indir = checkDir(indir, False)
 		files = glob(indir + "*{}*".format(ext))
@@ -70,7 +71,9 @@ class Config():
 		for k in ret.keys():
 			# Make sure there are two files per sample
 			if ret[k][0] == "" or ret[k][1] == "":
-				del ret[k]
+				rm.append(k)
+		for i in rm:
+			del ret[i]
 		return ret
 
 	def __checkOutdir__(self):
