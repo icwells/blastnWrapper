@@ -1,0 +1,5 @@
+ublast binary = 
+reference genome = 
+ublast database = 
+input fastq files = 
+output directory = 
