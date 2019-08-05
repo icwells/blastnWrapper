@@ -14,7 +14,7 @@ def blastSeqs(config):
 			print(("\tCalling blastn on {}...").format(k))
 			config.results[k] = ["", ""]
 			for idx, i in enumerate(config.fastas[k]):
-				outfile = os.path.join(config.resdir, unixpath.GetFileName(i) + ".outfmt6")
+				outfile = os.path.join(config.resdir, unixpath.getFileName(i) + ".outfmt6")
 				cmd = ("blastn -query {} -db {} -num_threads {} -max_target_seqs 1 -outfmt 6 -out {}").format(i, config.db, config.threads, outfile)
 				res = unixpath.runProc(cmd)
 				if res == True:
