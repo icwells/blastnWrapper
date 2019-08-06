@@ -76,6 +76,7 @@ class VariantSummary():
 		# Performs binary search and returns closest lesser match for start and greater match for end
 		start = 0
 		end = len(loci) - 1
+		val = None
 		while start < end:
 			md = int(start+end/2)
 			if 0 <= md < len(loci):
