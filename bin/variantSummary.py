@@ -51,8 +51,8 @@ class VariantSummary():
 				else:
 					delim = getDelim(line)
 					self.__setHeader__(line.split(delim))
-					print(self.vhead)
-					quit()
+		print(self.variants.keys())
+		quit()
 
 #-----------------------------------------------------------------------------
 
