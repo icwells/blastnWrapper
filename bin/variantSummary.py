@@ -20,6 +20,7 @@ class VariantSummary():
 		self.results = {}
 		self.__setVariants__()
 		self.__compareResults__()
+		self.__writeVariants__()
 
 	def __setHeader__(self, row):
 		# Returns header dict for variant files
@@ -154,9 +155,9 @@ class VariantSummary():
 		# Compares all blast result files to variants
 		for k in self.blast.keys():
 			for i in self.blast[k]:
+				# Clear dict for next file
 				self.results.clear()
 				name = getFileName(i)
 				print(("\tComparing results from {}...").format(name))
 				self.__setBlastResults__(name, i)
 				self.__compareVariants__(name)
-		self.__writeVariants__()
