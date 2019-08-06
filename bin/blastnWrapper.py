@@ -60,7 +60,7 @@ def main():
 	if args.v:
 		version()
 	# Load config file and append blast to path
-	config = Config(args.c, args.t, args.e)
+	config = Config(args.c, args.t)
 	if args.makedb:
 		makeDB(config)
 	elif args.blastn:
