@@ -110,6 +110,7 @@ class VariantSummary():
 		# Determines if blast results overlap with variants
 		for c in self.results.keys():
 			if c in self.variants.keys():
+				print(c)
 				for s in self.results[c].keys():
 					for e in self.results[c][s].keys():
 						print(c, s, e)
