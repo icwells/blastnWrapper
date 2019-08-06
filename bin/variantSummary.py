@@ -78,7 +78,7 @@ class VariantSummary():
 		end = len(loci) - 1
 		while start < end:
 			md = int(start+end/2)
-			if 0 > md < len(loci):
+			if 0 <= md < len(loci):
 				break
 			val = loci[md]
 			if target == val:
