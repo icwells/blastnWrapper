@@ -74,9 +74,9 @@ class VariantSummary():
 
 	def __binarySearch__(self, loci, target, less):
 		# Performs binary search and returns closest lesser match for start and greater match for end
-		strt = 0
+		start = 0
 		end = len(loci) - 1
-		while strt <= end:
+		while start <= end:
 			md = int(start+end/2)
 			val = loci[md]
 			if target == val:
