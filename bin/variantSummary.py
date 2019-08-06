@@ -103,10 +103,11 @@ class VariantSummary():
 			start = s
 		else:
 			start = self.__binarySearch__(list(self.variants[c].keys()), s, True)
-		if e in self.variants[c][start].keys():
-			end = e
-		else:		
-			end = self.__binarySearch__(list(self.variants[c][start].keys()), e, False)
+		if start is not None:
+			if e in self.variants[c][start].keys():
+				end = e
+			else:		
+				end = self.__binarySearch__(list(self.variants[c][start].keys()), e, False)
 		return start, end
 
 	def __compareVariants__(self, name):
