@@ -96,18 +96,6 @@ class VariantSummary():
 		# Return closest match
 		return val
 
-	def __search__(self, loci, target, forward):
-		# Performs linear search for loci matches
-		ret = None
-		loci.sort()
-		#if forward == False:
-		#	loci = loci[::-1]
-		for i in loci:
-			ret = i
-			if i >= target:
-				break
-		return ret
-
 	def __getLocus__(self, c, s, e):
 		# Returns best overlapping locus
 		start = None
@@ -115,12 +103,12 @@ class VariantSummary():
 		if s in self.variants[c].keys():
 			start = s
 		else:
-			start = self.__search__(list(self.variants[c].keys()), s, True)
+			start = self.__binarySearch__(list(self.variants[c].keys()), s, True)
 		if start is not None:
 			if e in self.variants[c][start].keys():
 				end = e
 			else:		
-				end = self.__search__(list(self.variants[c][start].keys()), e, False)
+				end = self.__binarySearch__(list(self.variants[c][start].keys()), e, False)
 		print(start, end)
 		return start, end
 
@@ -134,10 +122,7 @@ class VariantSummary():
 						start, end = self.__getLocus__(c, s, e)
 						if start is not None and end is not None:
 							qid = self.results[c][s][e][self.bhead["queryid"]]
-							try:
-								self.results[c][start][end].add(("{}:{}").format(name, qid))
-							except KeyError:
-								pass
+							self.variants[c][start][end].add(("{}:{}").format(name, qid))
 
 	def __evaluateRows__(self, row):
 		# Returns True if pid and evalue pass
