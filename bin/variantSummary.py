@@ -121,6 +121,7 @@ class VariantSummary():
 				end = e
 			else:		
 				end = self.__search__(list(self.variants[c][start].keys()), e, False)
+		print(start, end)
 		return start, end
 
 	def __compareVariants__(self, name):
