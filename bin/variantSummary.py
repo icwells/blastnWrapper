@@ -110,7 +110,6 @@ class VariantSummary():
 		# Determines if blast results overlap with variants
 		for c in self.results.keys():
 			if c in self.variants.keys():
-				print(c)
 				for s in self.results[c].keys():
 					for e in self.results[c][s].keys():
 						print(c, s, e)
@@ -156,10 +155,12 @@ class VariantSummary():
 	def __compareResults__(self):
 		# Compares all blast result files to variants
 		for k in self.blast.keys():
+			print(self.variants.keys())
 			for i in self.blast[k]:
 				# Clear dict for next file
 				self.results.clear()
 				name = getFileName(i)
 				print(("\tComparing results from {}...").format(name))
 				self.__setBlastResults__(name, i)
-				self.__compareVariants__(name)
+				print(self.results.keys())
+				#self.__compareVariants__(name)
