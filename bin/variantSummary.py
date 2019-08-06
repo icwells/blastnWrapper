@@ -133,7 +133,10 @@ class VariantSummary():
 						start, end = self.__getLocus__(c, s, e)
 						if start is not None and end is not None:
 							qid = self.results[c][s][e][self.bhead["queryid"]]
-							self.results[c][start][end].add(("{}:{}").format(name, qid))
+							try:
+								self.results[c][start][end].add(("{}:{}").format(name, qid))
+							except KeyError:
+								pass
 
 	def __evaluateRows__(self, row):
 		# Returns True if pid and evalue pass
