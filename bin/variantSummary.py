@@ -29,7 +29,7 @@ class VariantSummary():
 
 	def __setVariant__(self, row):
 		# Reads row of variant file into dict
-		c = int(row[self.vhead["Chr"]])
+		c = row[self.vhead["Chr"]]
 		start = int(row[self.vhead["Start"]])
 		end = int(row[self.vhead["End"]])
 		if c not in self.variants.keys():
@@ -141,7 +141,7 @@ class VariantSummary():
 				row = line.strip().split(delim)
 				pas = self.__evaluateRows__(row)
 				if pas == True:
-					c = int(row[self.bhead["subjectid"]])
+					c = row[self.bhead["subjectid"]]
 					start = int(row[self.bhead["sstart"]])
 					end = int(row[self.bhead["send"]])
 					if c not in self.results.keys():
