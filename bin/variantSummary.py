@@ -66,7 +66,7 @@ class VariantSummary():
 			for c in self.variants.keys():
 				for start in self.variants[c].keys():
 					for end in self.variants[c][start].keys():
-						out.write(str(self.variants[c][start][end]))
+						out.write(str(self.variants[c][start][end]) + "\n")
 						total += 1
 						if self.variants[c][start][end].hits > 0:
 							hits += 1
@@ -142,6 +142,7 @@ class VariantSummary():
 				pas = self.__evaluateRows__(row)
 				if pas == True:
 					c = row[self.bhead["subjectid"]]
+					print(c)
 					start = int(row[self.bhead["sstart"]])
 					end = int(row[self.bhead["send"]])
 					if c not in self.results.keys():
