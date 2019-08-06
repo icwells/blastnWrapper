@@ -9,9 +9,8 @@ from unixpath import *
 
 class Config():
 
-	def __init__(self, infile, threads, evalue):
+	def __init__(self, infile, threads):
 		self.threads = self.__setThreads__(threads)
-		self.evalue = evalue
 		self.bin = ""
 		self.genome = ""
 		self.database = ""

@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from argparse import ArgumentParser
 from unixpath import *
+from variantSummary import VariantSummary
 
 def blastSeqs(config):
 	# Calls blastx on all input and blastn on all hits with e < 10^-5
@@ -40,7 +41,9 @@ def getArguments():
 	parser.add_argument("--summary", default = False, action = "store_true", help = "Produces summary of directory of ublast results.")
 	parser.add_argument("-c", default = "../config.txt", help = "Path to configuration file.")
 	parser.add_argument("-t", default = "1", help = "Number of threads to run blast.")
-	parser.add_argument("-e", default = "0.00001", help = "Maximum expected value.")
+	parser.add_argument("-i", help = "Path to input variants file.")
+	parser.add_argument("-p", type = float, default = 95.0, help = "Minimum percent identity.")
+	parser.add_argument("-e", type = float, default = 0.00001, help = "Maximum expected value.")
 	parser.add_argument("-v", default = False, action = "store_true", help = "Print version info.")
 	return parser.parse_args()
 
@@ -62,9 +65,10 @@ def main():
 		makeDB(config)
 	elif args.blastn:
 		config = blastSeqs(config)
-		#summarize(config)
-	#elif args.summary:
-	#	summarize(config)
+		if args.i:
+			VariantSummary(args.i, args.p, args.e, config.results)
+	elif args.summary and args.i:
+		VariantSummary(args.i, args.p, args.e, config.results)
 	else:
 		print("\n[Error] Please supply a valid command.\n")
 		quit()
