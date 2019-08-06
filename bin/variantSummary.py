@@ -19,6 +19,7 @@ class VariantSummary():
 		self.blast = blastfiles
 		self.results = {}
 		self.__setVariants__()
+		self.__compareResults__()
 
 	def __setHeader__(self, row):
 		# Returns header dict for variant files
