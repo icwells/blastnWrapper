@@ -112,6 +112,7 @@ class VariantSummary():
 			if c in self.variants.keys():
 				for s in self.results[c].keys():
 					for e in self.results[c][s].keys():
+						print(c, s, e)
 						# Get best match and add to variant
 						start, end = self.__getLocus__(c, s, e)
 						if start is not None and end is not None:
@@ -142,7 +143,6 @@ class VariantSummary():
 				pas = self.__evaluateRows__(row)
 				if pas == True:
 					c = row[self.bhead["subjectid"]]
-					print(c)
 					start = int(row[self.bhead["sstart"]])
 					end = int(row[self.bhead["send"]])
 					if c not in self.results.keys():
