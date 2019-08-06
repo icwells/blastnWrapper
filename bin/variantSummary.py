@@ -33,7 +33,6 @@ class VariantSummary():
 		start = int(row[self.vhead["Start"]])
 		end = int(row[self.vhead["End"]])
 		if c not in self.variants.keys():
-			print(c)
 			self.variants[c] = {}
 		if start not in self.variants[c].keys():
 			self.variants[c][start] = {}
@@ -52,8 +51,7 @@ class VariantSummary():
 				else:
 					delim = getDelim(line)
 					self.__setHeader__(line.split(delim))
-		print(delim, self.variants.keys())
-		quit()
+					first = False
 
 #-----------------------------------------------------------------------------
 
