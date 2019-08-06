@@ -25,7 +25,7 @@ class VariantSummary():
 	def __setHeader__(self, row):
 		# Returns header dict for variant files
 		for idx, i in enumerate(row):
-			self.vhead[i] = idx
+			self.vhead[i.strip()] = idx
 
 	def __setVariant__(self, row):
 		# Reads row of variant file into dict
@@ -52,6 +52,8 @@ class VariantSummary():
 				else:
 					delim = getDelim(line)
 					self.__setHeader__(line.split(delim))
+					print(self.vheader)
+					quit()
 
 #-----------------------------------------------------------------------------
 
@@ -155,12 +157,10 @@ class VariantSummary():
 	def __compareResults__(self):
 		# Compares all blast result files to variants
 		for k in self.blast.keys():
-			print(self.variants.keys())
 			for i in self.blast[k]:
 				# Clear dict for next file
 				self.results.clear()
 				name = getFileName(i)
 				print(("\tComparing results from {}...").format(name))
 				self.__setBlastResults__(name, i)
-				print(self.results.keys())
-				#self.__compareVariants__(name)
+				self.__compareVariants__(name)
