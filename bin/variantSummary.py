@@ -52,7 +52,7 @@ class VariantSummary():
 				else:
 					delim = getDelim(line)
 					self.__setHeader__(line.split(delim))
-					print(self.vheader)
+					print(self.vhead)
 					quit()
 
 #-----------------------------------------------------------------------------
