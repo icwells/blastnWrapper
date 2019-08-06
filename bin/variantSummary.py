@@ -112,7 +112,6 @@ class VariantSummary():
 			if c in self.variants.keys():
 				for s in self.results[c].keys():
 					for e in self.results[c][s].keys():
-						print(c, s, e)
 						# Get best match and add to variant
 						start, end = self.__getLocus__(c, s, e)
 						if start is not None and end is not None:
