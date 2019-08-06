@@ -36,8 +36,7 @@ class VariantSummary():
 			self.variants[c] = {}
 		if start not in self.variants[c].keys():
 			self.variants[c][start] = {}
-		if end not in self.variants[c][start].keys():
-			self.variants[c][start][end] = Variant(row)
+		self.variants[c][start][end] = Variant(row)
 
 	def __setVariants__(self):
 		# Reads in dict of variants from infile
@@ -151,8 +150,7 @@ class VariantSummary():
 						self.results[c] = {}
 					if start not in self.results[c].keys():
 						self.results[c][start] = {}
-					if end not in self.results[c][start].keys():
-						self.results[c][start][end] = row	
+					self.results[c][start][end] = row	
 
 	def __compareResults__(self):
 		# Compares all blast result files to variants
