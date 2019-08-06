@@ -66,9 +66,9 @@ def main():
 	elif args.blastn:
 		config = blastSeqs(config)
 		if args.i:
-			VariantSummary(args.i, args.p, args.e, config.results)
+			VariantSummary(args.i, config.outdir, args.p, args.e, config.results)
 	elif args.summary and args.i:
-		VariantSummary(args.i, args.p, args.e, config.results)
+		VariantSummary(args.i, config.outdir, args.p, args.e, config.results)
 	else:
 		print("\n[Error] Please supply a valid command.\n")
 		quit()
