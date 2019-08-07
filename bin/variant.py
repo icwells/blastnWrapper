@@ -2,17 +2,33 @@
 
 class Variant():
 
-	def __init__(self, row):
-		self.row = row
+	def __init__(self, pid, c, start, end, row):
+		self.id = pid
+		self.chromosome = c
+		self.start = float(start)
+		self.end = float(end)
+		self.row = row[1:]
 		self.hits = 0
 		self.matches = []
 
-	def __str__(self):
-		# Returns formatted string
-		return ("{},{},{}").format(",".join(self.row), self.hits, ",".join(self.matches))
+	def getMatches(self):
+		# Returns list of query/subject matches
+		ids = []
+		ret = []
+		stem = [self.chromosome, self.start, self.end]
+		for i in self.matches:
+			idx.append(self.id)
+			ret.append(stem.extend(i))
+		return ids, ret
 
-	def add(self, hit):
-		# Appends hit to list and indexes hit counter
-		self.matches.append(hit)
+	def add(self, pid, start, end):
+		# Indexes hit counter
 		self.hits += 1
-		
+		self.matches.append([pid, start, end])
+
+	def inRange(self, start, end):
+		# Returns true if start and end are inside self.start/end
+		if self.start <= start and self.end >= end:
+			return True
+		else:
+			return False

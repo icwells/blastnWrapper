@@ -59,7 +59,7 @@ class Config():
 			files.append(indir + "*{}*".format(ext))
 		for i in files:
 			# Get sample names and add to dict
-			name = os.path.split(i)[1].split("_")[0]
+			name = getSampleName(i)
 			if name not in ret.keys():
 				ret[name] = ["", ""]
 			# Add forward/reverse files in order

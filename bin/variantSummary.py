@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 import os
+import pandas
 from unixpath import *
 from variant import Variant
 
@@ -9,7 +10,7 @@ class VariantSummary():
 
 	def __init__(self, infile, outdir, pid, evalue, blastfiles):
 		self.infile = infile
-		self.outfile = os.path.join(outdir, "variantsBlastSummary.csv")
+		self.outfile = os.path.join(outdir, "variantsBlastSummary.xlsx")
 		self.pid = pid
 		self.e = evalue
 		self.vhead = OrderedDict()
@@ -28,15 +29,16 @@ class VariantSummary():
 			self.vhead[i.strip()] = idx
 
 	def __setVariant__(self, row):
-		# Reads row of variant file into dict
+		# Reads row of variant file into dict by id and chromosome
+		pid = row[self.vhead["Patient"]]
 		c = row[self.vhead["Chr"]]
-		start = float(row[self.vhead["Start"]])
-		end = float(row[self.vhead["End"]])
-		if c not in self.variants.keys():
-			self.variants[c] = {}
-		if start not in self.variants[c].keys():
-			self.variants[c][start] = {}
-		self.variants[c][start][end] = Variant(row)
+		start = row[self.vhead["Start"]]
+		end = row[self.vhead["End"]]
+		if pid not in self.variants.keys():
+			self.variants[pid] = {}
+		if c not in self.variants[pid].keys():
+			self.variants[pid][c] = []
+		self.variants[pid][c].append(Variant(pid, c, start, end, row))
 
 	def __setVariants__(self):
 		# Reads in dict of variants from infile
@@ -55,86 +57,47 @@ class VariantSummary():
 
 #-----------------------------------------------------------------------------
 
+	def __getOutput__(self):
+		# Returns data frame of summary data, alignment data, and input variants file
+		s = []
+		m = []
+		v = []
+		idx = []
+		ind = []
+		for k in self.variants.keys():
+			for c in self.variants[k].keys():
+				for i in self.variants[k][c]:
+					# Store ids as seperate index for pandas
+					idx.append(i.pid)
+					s.append(i.hits)
+					v.append(i.row)
+					# Get match data
+					ids, matches = i.getMatches()
+					ind.extend(ids)
+					m.extend(matches)
+		summary = pandas.DataFrame(s, index = idx, columns = ["AmpliseqHits"])
+		hits = pandas.DataFrame(m, index = ind, columns = ["Chr", "VariantStart", "VariantEnd", "QueryID", "QueryStart", "QueryEnd"])
+		var = pandas.DataFrame(v, index = idx, columns = list(self.vhead.keys())[1:])
+		return summary, hits, var
+
 	def __writeVariants__(self):
 		# Writes comparison results to file
-		total = 0
-		hits = 0
-		head = ("{},#Hits,HitIDs\n").format(",".join(self.vhead.keys()))
 		print("\tWriting results to file...")
-		with open(self.outfile, "w") as out:
-			out.write(head)
-			for c in self.variants.keys():
-				for start in self.variants[c].keys():
-					for end in self.variants[c][start].keys():
-						out.write(str(self.variants[c][start][end]) + "\n")
-						total += 1
-						if self.variants[c][start][end].hits > 0:
-							hits += 1
-		print(("\tFound {} matches for {} total variants.").format(hits, total))
-
-	def __binarySearch__(self, loci, target, less):
-		# Performs binary search and returns closest lesser match for start and greater match for end
-		loci.sort()
-		start = 0
-		end = len(loci) - 1
-		val = None
-		while start < end:
-			md = int(start+end/2)
-			if 0 <= md < len(loci):
-				break
-			val = loci[md]
-			if target == val:
-				return val
-			elif less == True and target > val:
-				end = md + 1
-			elif less == True and target < val:
-				start = md - 1
-			elif target > val:
-				start = md + 1
-			else:
-				end = md - 1
-		# Return closest match
-		return val
-
-	def __search__(self, loci, target, forward):
-		# Performs linear search for loci matches
-		ret = None
-		loci.sort()
-		#if forward == False:
-		#	loci = loci[::-1]
-		for i in loci:
-			ret = i
-			if i >= target:
-				break
-		return ret
-
-	def __getLocus__(self, c, s, e):
-		# Returns best overlapping locus
-		start = None
-		end = None
-		if s in self.variants[c].keys():
-			start = s
-		else:
-			start = self.__search__(list(self.variants[c].keys()), s, True)
-		if start is not None:
-			if e in self.variants[c][start].keys():
-				end = e
-			else:		
-				end = self.__search__(list(self.variants[c][start].keys()), e, False)
-		print(start, end)
-		return start, end
+		summary, hits, var = self.__getOutput__()
+		with pandas.ExcelWriter(self.outfile) as writer:
+			summary.to_excel(writer, sheet_name = "Summary")
+			hits.to_excel(writer, sheet_name = "Blast Hits")
+			var.to_excel(writer, sheet_name = "Variants")
 
 	def __compareVariants__(self, name):
 		# Determines if blast results overlap with variants
 		for c in self.results.keys():
-			if c in self.variants.keys():
-				for s in self.results[c].keys():
-					for e in self.results[c][s].keys():
-						# Get best match and add to variant
-						start, end = self.__getLocus__(c, s, e)
-						if start is not None and end is not None:
-							qid = self.results[c][s][e][self.bhead["queryid"]]
-							self.variants[c][start][end].add(("{}:{}").format(name, qid))
+			if c in self.variants[name].keys():
+				for v in self.variants[name][c]:
+					for i in self.results[name][c]:
+						# Detmerine if any blast hits contain variant locus
+						if self.results[name][c].inRange(v.start, v.end):
+							self.variants[name][c].add(i.pid, i.start, i.end)
 
 	def __evaluateRows__(self, row):
 		# Returns True if pid and evalue pass
@@ -148,8 +111,8 @@ class VariantSummary():
 			pass
 		return ret
 
-	def __setBlastResults__(self, name, infile):
-		# Reads in infile as a dictionary
+	def __setBlastResults__(self, pid, infile):
+		# Reads in infile as a dictionary stored by chromosome (each file is one sample)
 		first = True
 		with open(infile, "r") as f:
 			for line in f:
@@ -160,13 +123,11 @@ class VariantSummary():
 				pas = self.__evaluateRows__(row)
 				if pas == True:
 					c = row[self.bhead["subjectid"]]
-					start = float(row[self.bhead["sstart"]])
-					end = float(row[self.bhead["send"]])
+					start = row[self.bhead["sstart"]]
+					end = row[self.bhead["send"]]
 					if c not in self.results.keys():
 						self.results[c] = {}
-					if start not in self.results[c].keys():
-						self.results[c][start] = {}
-					self.results[c][start][end] = row	
+					self.variants[c].append(Variant(pid, c, start, end, row))
 
 	def __compareResults__(self):
 		# Compares all blast result files to variants
@@ -174,7 +135,8 @@ class VariantSummary():
 			for i in self.blast[k]:
 				# Clear dict for next file
 				self.results.clear()
-				name = getFileName(i)
-				print(("\tComparing results from {}...").format(name))
-				self.__setBlastResults__(name, i)
-				self.__compareVariants__(name)
+				name = getSampleName(i)
+				if name in self.variants.keys():
+					print(("\tComparing results from {}...").format(name))
+					self.__setBlastResults__(name, i)
+					self.__compareVariants__(name)
