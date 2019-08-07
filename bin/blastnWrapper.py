@@ -4,21 +4,8 @@ from argparse import ArgumentParser
 from config import Config
 from datetime import datetime
 import os
-import re
 from unixpath import *
 from variantSummary import VariantSummary
-
-def getSampleName(infile):
-	# Returns sample name from filename
-	name = getFilename(infile)
-	name = name.split("_")[0]
-	name = name.split("-")
-	# Add DCIS and sample number
-	ret = name[0] + name[1]
-	if re.match(r"\d", name[2]) is not None:
-		# Add alpha-numeric suffix
-		ret = ("{}_{}").format(ret, name[2])
-	return ret
 
 def blastSeqs(config):
 	# Calls blastx on all input and blastn on all hits with e < 10^-5

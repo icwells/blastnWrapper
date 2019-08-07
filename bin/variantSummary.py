@@ -1,6 +1,7 @@
 '''Compares blast output to variants files and produces summary of overlap'''
 
 from collections import OrderedDict
+from config import getSampleName
 import os
 import pandas
 from unixpath import *
@@ -28,12 +29,19 @@ class VariantSummary():
 		for idx, i in enumerate(row):
 			self.vhead[i.strip()] = idx
 
+	def __setChromosome__(self, val):
+		# Removes decimal from chromosome number
+		if ".0" in val:
+			val = val.split(".")[0]
+		return val
+
 	def __setVariant__(self, row):
 		# Reads row of variant file into dict by id and chromosome
 		pid = row[self.vhead["Patient"]]
-		c = row[self.vhead["Chr"]]
+		c = self.__setChromosome__(row[self.vhead["Chr"]])
 		start = row[self.vhead["Start"]]
 		end = row[self.vhead["End"]]
+		name = row[self.vhead["Name"]]
 		if pid not in self.variants.keys():
 			self.variants[pid] = {}
 		if c not in self.variants[pid].keys():
@@ -68,21 +76,21 @@ class VariantSummary():
 			for c in self.variants[k].keys():
 				for i in self.variants[k][c]:
 					# Store ids as seperate index for pandas
-					idx.append(i.pid)
-					s.append(i.hits)
+					idx.append(i.id)
+					s.append([c, i.start, i.end, i.name, len(i.matches)])
 					v.append(i.row)
 					# Get match data
 					ids, matches = i.getMatches()
 					ind.extend(ids)
 					m.extend(matches)
-		summary = pandas.DataFrame(s, index = idx, columns = ["AmpliseqHits"])
+		summary = pandas.DataFrame(s, index = idx, columns = ["Chr", "Start", "End", "Name", "Coverage"])
 		hits = pandas.DataFrame(m, index = ind, columns = ["Chr", "VariantStart", "VariantEnd", "QueryID", "QueryStart", "QueryEnd"])
 		var = pandas.DataFrame(v, index = idx, columns = list(self.vhead.keys())[1:])
 		return summary, hits, var
 
 	def __writeVariants__(self):
 		# Writes comparison results to file
-		print("\tWriting results to file...")
+		print("\n\tWriting results to file...")
 		summary, hits, var = self.__getOutput__()
 		with pandas.ExcelWriter(self.outfile) as writer:
 			summary.to_excel(writer, sheet_name = "Summary")
@@ -90,14 +98,14 @@ class VariantSummary():
 			var.to_excel(writer, sheet_name = "Variants")
 
 	def __compareVariants__(self, name):
-		# Determines if blast results overlap with variants
+		# Determines if blast results overlap with variants for given sample
 		for c in self.results.keys():
 			if c in self.variants[name].keys():
-				for v in self.variants[name][c]:
-					for i in self.results[name][c]:
+				for idx, v in enumerate(self.variants[name][c]):
+					for i in self.results[c]:
 						# Detmerine if any blast hits contain variant locus
-						if self.results[name][c].inRange(v.start, v.end):
-							self.variants[name][c].add(i.pid, i.start, i.end)
+						if i.inRange(v.start, v.end):
+							self.variants[name][c][idx].add(i.id, i.start, i.end)
 
 	def __evaluateRows__(self, row):
 		# Returns True if pid and evalue pass
@@ -111,7 +119,7 @@ class VariantSummary():
 			pass
 		return ret
 
-	def __setBlastResults__(self, pid, infile):
+	def __setBlastResults__(self, name, infile):
 		# Reads in infile as a dictionary stored by chromosome (each file is one sample)
 		first = True
 		with open(infile, "r") as f:
@@ -120,23 +128,25 @@ class VariantSummary():
 					delim = getDelim(line)
 					first = False
 				row = line.strip().split(delim)
+				c = row[self.bhead["subjectid"]]
 				pas = self.__evaluateRows__(row)
-				if pas == True:
-					c = row[self.bhead["subjectid"]]
+				if pas == True and c in self.variants[name].keys():
+					# Only proceed if there is sufficient match quality and chromosome is present in variants
+					qid = row[self.bhead["queryid"]]
 					start = row[self.bhead["sstart"]]
 					end = row[self.bhead["send"]]
 					if c not in self.results.keys():
-						self.results[c] = {}
-					self.variants[c].append(Variant(pid, c, start, end, row))
+						self.results[c] = []
+					self.results[c].append(Variant(qid, c, start, end, row))
 
 	def __compareResults__(self):
 		# Compares all blast result files to variants
 		for k in self.blast.keys():
-			for i in self.blast[k]:
-				# Clear dict for next file
-				self.results.clear()
-				name = getSampleName(i)
-				if name in self.variants.keys():
-					print(("\tComparing results from {}...").format(name))
+			name = getSampleName(self.blast[k][0])
+			if name in self.variants.keys():
+				for idx, i in enumerate(self.blast[k]):
+					# Clear dict for next file
+					self.results.clear()
+					print(("\tComparing results from {} R{}...").format(name, idx+1))
 					self.__setBlastResults__(name, i)
 					self.__compareVariants__(name)
