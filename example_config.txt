@@ -1,5 +1,5 @@
-ublast binary = 
+blast bin directory = 
 reference genome = 
-ublast database = 
+blast database = 
 input fastq files = 
 output directory = 
