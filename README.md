@@ -14,6 +14,8 @@ Download NCBI Blast+ [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAG
 
 ## Installation  
 
+	pip install -y openpyxl pandas
+
 	git clone https://github.com/icwells/blastnWrapper.git  
 
 ## Usage  
