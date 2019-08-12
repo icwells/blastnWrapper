@@ -6,10 +6,16 @@ class Variant():
 		self.id = pid
 		self.chromosome = c
 		self.name = name
-		self.start = float(start)
-		self.end = float(end)
+		self.start = self.__setCoordinate__(start)
+		self.end = self.__setCoordinate__(end)
 		self.row = row[1:]
 		self.matches = []
+
+	def __setCoordinate__(self, val):
+		# Removes decimal from chromosome number
+		if "." in val:
+			val = val.split(".")[0]
+		return int(val)
 
 	def getMatches(self):
 		# Returns list of query/subject matches
