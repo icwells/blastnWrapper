@@ -139,11 +139,22 @@ class VariantSummary():
 						self.results[c] = []
 					self.results[c].append(Variant(qid, c, start, end, row))
 
+	def __getSampleID__(self, filename):
+		# Attempts to resolve result of getSampleName with variants keys
+		ret = getSampleName(filename)
+		if ret in self.variants.keys():
+			return ret
+		elif "_" in ret:
+			ret = ret.split("_")[0]
+			if ret in self.variants.keys():
+				return ret
+		return None			
+
 	def __compareResults__(self):
 		# Compares all blast result files to variants
 		for k in self.blast.keys():
-			name = getSampleName(self.blast[k][0])
-			if name in self.variants.keys():
+			name = self.__getSampleID__(self.blast[k][0])
+			if name is not None:
 				for idx, i in enumerate(self.blast[k]):
 					# Clear dict for next file
 					self.results.clear()
