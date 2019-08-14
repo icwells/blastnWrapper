@@ -13,7 +13,7 @@ def blastSeqs(config):
 	for k in config.fastas.keys():
 		if k not in config.results.keys():
 			print(("\tCalling blastn on {}...").format(k))
-			config.results[k] = ["", ""]
+			config.results[k] = [None, None]
 			for idx, i in enumerate(config.fastas[k]):
 				outfile = os.path.join(config.resdir, getFileName(i) + ".outfmt6")
 				cmd = ("{}blastn -query {} -db {} -num_threads {} -max_target_seqs 1 -outfmt 6 -out {}").format(config.bin, i, config.database, config.threads, outfile)

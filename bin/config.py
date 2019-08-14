@@ -7,18 +7,6 @@ import os
 import re
 from unixpath import *
 
-def getSampleName(infile):
-	# Returns sample name from filename
-	name = os.path.split(infile)[1]
-	name = name.split("_")[0]
-	name = name.split("-")
-	# Add DCIS and sample number
-	ret = name[0] + name[1]
-	if name[2][1].isdigit():
-		# Add alpha-numeric suffix
-		ret = ("{}_{}").format(ret, name[2])
-	return ret
-
 class Config():
 
 	def __init__(self, infile, threads):
@@ -70,11 +58,11 @@ class Config():
 		if ext2 is not None:
 			files.append(indir + "*{}*".format(ext))
 		for i in files:
-			# Get sample names and add to dict
+			# Get file names (may be multiple files per sample) and add to dict
 			if os.path.isfile(i):
-				name = getSampleName(i)
+				name = os.path.split(i)[1].split("_")[0]
 				if name not in ret.keys():
-					ret[name] = ["", ""]
+					ret[name] = [None, None]
 				# Add forward/reverse files in order
 				if "_R1_" in i:
 					ret[name][0] = i
@@ -82,7 +70,7 @@ class Config():
 					ret[name][1] = i
 		for k in ret.keys():
 			# Make sure there are two files per sample
-			if ret[k][0] == "" or ret[k][1] == "":
+			if ret[k][0] is None or ret[k][1] is None:
 				rm.append(k)
 		for i in rm:
 			del ret[i]

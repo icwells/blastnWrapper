@@ -1,7 +1,6 @@
 '''Compares blast output to variants files and produces summary of overlap'''
 
 from collections import OrderedDict
-from config import getSampleName
 import os
 import pandas
 from unixpath import *
@@ -46,7 +45,7 @@ class VariantSummary():
 			self.variants[pid] = {}
 		if c not in self.variants[pid].keys():
 			self.variants[pid][c] = []
-		self.variants[pid][c].append(Variant(pid, c, start, end, row))
+		self.variants[pid][c].append(Variant(pid, c, start, end, row, name))
 
 	def __setVariants__(self):
 		# Reads in dict of variants from infile
@@ -139,9 +138,21 @@ class VariantSummary():
 						self.results[c] = []
 					self.results[c].append(Variant(qid, c, start, end, row))
 
+	def __getSampleName__(self, infile):
+		# Returns sample name from filename
+		name = os.path.split(infile)[1]
+		name = name.split("_")[0]
+		name = name.split("-")
+		# Add DCIS and sample number
+		ret = name[0] + name[1]
+		if name[2][1].isdigit():
+			# Add alpha-numeric suffix
+			ret = ("{}_{}").format(ret, name[2])
+		return ret
+
 	def __getSampleID__(self, filename):
 		# Attempts to resolve result of getSampleName with variants keys
-		ret = getSampleName(filename)
+		ret = self.__getSampleName__(filename)
 		if ret in self.variants.keys():
 			return ret
 		elif "_" in ret:
@@ -157,11 +168,13 @@ class VariantSummary():
 	def __compareResults__(self):
 		# Compares all blast result files to variants
 		for k in self.blast.keys():
-			name = self.__getSampleID__(self.blast[k][0])
-			if name is not None:
-				for idx, i in enumerate(self.blast[k]):
-					# Clear dict for next file
-					self.results.clear()
-					print(("\tComparing results from {} R{}...").format(name, idx+1))
-					self.__setBlastResults__(name, i)
-					self.__compareVariants__(name)
+			if self.blast[k][0] is not None and self.blast[k][1] is not None:
+				# Get name from filename
+				name = self.__getSampleID__(self.blast[k][0])
+				if name is not None:
+					for idx, i in enumerate(self.blast[k]):
+						# Clear dict for next file
+						self.results.clear()
+						print(("\tComparing results from {} R{}...").format(k, idx+1))
+						self.__setBlastResults__(name, i)
+						self.__compareVariants__(name)
