@@ -148,6 +148,10 @@ class VariantSummary():
 			ret = ret.split("_")[0]
 			if ret in self.variants.keys():
 				return ret
+			elif "0" in ret:
+				ret = ret.replace("0", "")
+				if ret in self.variants.keys():
+					return ret
 		return None			
 
 	def __compareResults__(self):
